@@ -1,0 +1,26 @@
+#Commands to build and run
+#docker build -t alpine-splice .
+#docker run --name splice -it -d -p1527:1527  alpine-splice
+FROM gliderlabs/alpine:3.4
+
+RUN apk --no-cache add libstdc++
+RUN apk add --no-cache bash gawk sed grep bc coreutils
+RUN apk --update add openjdk8-jre-base
+RUN apk --update add curl
+RUN apk --no-cache add curl
+RUN rm -rf /var/cache/apk/*
+
+RUN mkdir -p /opt
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+
+#1.) download the community edition of splice machine (splice_machine-2.0.1.18_standalone.tar.gz) (http://www.splicemachine.com/get-started/download)
+#2.) tar unzip and move or copy to where the DockerFile is
+ADD splicemachine /opt/splicemachine
+WORKDIR  /opt/splicemachine/bin
+ENTRYPOINT ./start-splice.sh && while true; do sleep 1000; done
+
+EXPOSE 1527
+
+#on intellij use: *Database Driver* - jdbc:splice://localhost:1527/splicedb
+#dialect SQL 92
+#more instructions: http://doc.splicemachine.com/Developers/Connecting/JDBCDriver.html
